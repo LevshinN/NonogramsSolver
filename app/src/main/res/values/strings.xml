@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">NonogramsSolver</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="welcome">Welcome to Nonogram Solver!</string>
+    <string name="put_size">Please, enter the size of nonogram.</string>
+
+    <string name="width">width</string>
+    <string name="height">height</string>
+
+    <string name="filling_text">Select column and row, input parameters and press Update to apply
+        changes.</string>
+
+    <string name="fill_v_params">Vertical params</string>
+    <string name="fill_h_params">Horizontal params</string>
+
+</resources>
