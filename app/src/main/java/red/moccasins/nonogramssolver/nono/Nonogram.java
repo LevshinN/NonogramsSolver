@@ -22,9 +22,18 @@ public class Nonogram {
 
     private float tableWidth;
     private float tableHeight;
+
+    private float startX;
+    private float startY;
+    private float cellSize;
+
     private int tableColor;
+    private int selectedCellColor;
 
     private Paint tablePen;
+
+    private int selectedRow;
+    private int selectedColumn;
 
     // цифорки, которые расположены сверху
     public ArrayList<ArrayList<Integer>> verticalParams;
@@ -41,6 +50,14 @@ public class Nonogram {
         paramsWidth = 0;
         paramsHeight = 0;
 
+        startX = 0;
+        startY = 0;
+
+        cellSize = 0;
+
+        selectedColumn = -1;
+        selectedRow = -1;
+
         verticalParams = new ArrayList<>(width);
         horizontalParams = new ArrayList<>(height);
     }
@@ -49,13 +66,31 @@ public class Nonogram {
         tableWidth = measureWidth;
         tableHeight = measureHeight;
         tableColor = context.getResources().getColor(android.R.color.black);
+        selectedCellColor = context.getResources().getColor(android.R.color.darker_gray);
 
         tablePen = new Paint(Paint.ANTI_ALIAS_FLAG);
-        tablePen.setColor(tableColor);
     }
 
 
     public void draw(Canvas canvas) {
+
+        if (selectedRow >= 0 && selectedColumn >= 0) {
+
+            tablePen.setStrokeWidth(1.0f);
+            tablePen.setColor(selectedCellColor);
+
+            canvas.drawRect(startX + selectedColumn * cellSize,
+                    startY,
+                    startX + selectedColumn * cellSize + cellSize,
+                    startY + (paramsHeight + height) * cellSize, tablePen);
+
+            canvas.drawRect(startX,
+                    startY + selectedRow * cellSize,
+                    startX + (paramsWidth + width) * cellSize,
+                    startY + selectedRow * cellSize + cellSize, tablePen);
+        }
+
+        tablePen.setColor(tableColor);
 
         for (ArrayList<Integer> vParams : verticalParams) {
             if (vParams.size() > paramsHeight) {
@@ -72,32 +107,66 @@ public class Nonogram {
         float cellWidth = tableWidth / (paramsWidth + width);
         float cellHeight = tableHeight / (paramsHeight + height);
 
+        cellSize = Math.min(cellWidth, cellHeight);
+
+        startX = (tableWidth - cellSize * (paramsWidth + width)) / 2;
+        startY = (tableHeight - cellSize * (paramsHeight + height)) / 2;
+
         for (int i = 0; i < height + paramsHeight; ++i) {
-            if ( i >= paramsHeight && (i - paramsHeight) % 5 == 0 ) {
+            if (i >= paramsHeight && (i - paramsHeight) % 5 == 0) {
                 tablePen.setStrokeWidth(5.0f);
             } else {
                 tablePen.setStrokeWidth(1.0f);
             }
-            canvas.drawLine(0, i * cellHeight,
-                    tableWidth, i * cellHeight, tablePen);
+            canvas.drawLine(startX,
+                    startY + i * cellSize,
+                    startX + cellSize * (paramsWidth + width),
+                    startY + i * cellSize,
+                    tablePen);
         }
 
         tablePen.setStrokeWidth(5.0f);
-        canvas.drawLine(0, tableHeight,
-                tableWidth, tableHeight, tablePen);
+        canvas.drawLine(startX,
+                startY + cellSize * (paramsHeight + height),
+                startX + cellSize * (paramsWidth + width),
+                startY + cellSize * (paramsHeight + height),
+                tablePen);
 
         for (int i = 0; i < width + paramsWidth; ++i) {
-            if ( i >= paramsWidth && (i - paramsWidth) % 5 == 0 ) {
+            if (i >= paramsWidth && (i - paramsWidth) % 5 == 0) {
                 tablePen.setStrokeWidth(5.0f);
             } else {
                 tablePen.setStrokeWidth(1.0f);
             }
-            canvas.drawLine(i * cellWidth, 0,
-                    i * cellWidth, tableHeight, tablePen);
+            canvas.drawLine(startX + i * cellSize,
+                    startY,
+                    startX + i * cellSize,
+                    startY + cellSize * (paramsHeight + height),
+                    tablePen);
         }
 
         tablePen.setStrokeWidth(5.0f);
-        canvas.drawLine(tableWidth, 0,
-                tableWidth, tableHeight, tablePen);
+        canvas.drawLine(startX + cellSize * (paramsWidth + width),
+                startY,
+                startX + cellSize * (paramsWidth + width),
+                startY + cellSize * (paramsHeight + height),
+                tablePen);
+
+
     }
+
+    public boolean SelectCell(float x, float y) {
+        if (x < startX
+                || y < startY
+                || x > startX + cellSize * (paramsWidth + width)
+                || y > startY + cellSize * (paramsHeight + height)) {
+            return false;
+        } else {
+            selectedColumn = (int)((x - startX) / cellSize);
+            selectedRow = (int)((y - startY) / cellSize);
+            return true;
+        }
+    }
+
+
 }
